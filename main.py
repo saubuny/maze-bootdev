@@ -2,7 +2,7 @@ from tkinter import Tk, Canvas
 
 
 class Point:
-    def __init__(self, x: float, y: float) -> None:
+    def __init__(self, x: int, y: int) -> None:
         self.x = x
         self.y = y
 
@@ -44,10 +44,46 @@ class Window:
         line.draw(self.__canvas, fill_color)
 
 
+class Cell:
+    def __init__(self, win: Window) -> None:
+        self.has_left_wall = True
+        self.has_right_wall = True
+        self.has_top_wall = True
+        self.has_bottom_wall = True
+
+        self._x1 = None
+        self._x2 = None
+        self._y1 = None
+        self._y2 = None
+        self._win = win
+
+    def draw(self, top_left: tuple[int, int], bottom_right: tuple[int, int]) -> None:
+        self._x1 = top_left[0]
+        self._y1 = top_left[1]
+        self._x2 = bottom_right[0]
+        self._y2 = bottom_right[1]
+
+        if self.has_left_wall:
+            left = Line(Point(self._x1, self._y1), Point(self._x1, self._y2))
+            self._win.draw_line(left, "black")
+        if self.has_right_wall:
+            right = Line(Point(self._x2, self._y1), Point(self._x2, self._y2))
+            self._win.draw_line(right, "black")
+        if self.has_top_wall:
+            top = Line(Point(self._x1, self._y1), Point(self._x2, self._y1))
+            self._win.draw_line(top, "black")
+        if self.has_bottom_wall:
+            bottom = Line(Point(self._x1, self._y2), Point(self._x2, self._y2))
+            self._win.draw_line(bottom, "black")
+
+
 def main() -> None:
     win = Window(800, 800)
-    win.draw_line(Line(Point(0, 100), Point(400, 300)), "black")
-    win.draw_line(Line(Point(443, 700), Point(546, 654)), "red")
+    c1 = Cell(win)
+    c2 = Cell(win)
+    c1.has_bottom_wall = False
+    c1.draw((400, 400), (500, 500))
+    c2.draw((600, 400), (700, 500))
     win.wait_for_close()
 
 
