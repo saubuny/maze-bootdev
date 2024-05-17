@@ -136,7 +136,7 @@ class Maze:
     def _animate(self) -> None:
         if self._win:
             self._win.redraw()
-            sleep(0.005)
+            sleep(0.001)
 
     def _break_entrance_and_exit(self) -> None:
         self._cells[0][0].has_top_wall = False
@@ -192,6 +192,38 @@ class Maze:
             for j in range(self._num_rows):
                 self._cells[i][j].visited = False
 
+    def solve(self) -> bool:
+        return self._solve_r(0, 0)
+
+    def _solve_r(self, i: int, j: int) -> bool:
+        self._animate()
+        self._cells[i][j].visited = True
+
+        if i == self._num_cols - 1 and j == self._num_rows - 1:
+            return True
+
+        if self._can_visit_cell(i - 1, j) and not self._cells[i][j].has_left_wall:
+            self._cells[i][j].draw_move(self._cells[i - 1][j])
+            if self._solve_r(i - 1, j):
+                return True
+            self._cells[i][j].draw_move(self._cells[i - 1][j], True)
+        if self._can_visit_cell(i + 1, j) and not self._cells[i][j].has_right_wall:
+            self._cells[i][j].draw_move(self._cells[i + 1][j])
+            if self._solve_r(i + 1, j):
+                return True
+            self._cells[i][j].draw_move(self._cells[i + 1][j], True)
+        if self._can_visit_cell(i, j + 1) and not self._cells[i][j].has_bottom_wall:
+            self._cells[i][j].draw_move(self._cells[i][j + 1])
+            if self._solve_r(i, j + 1):
+                return True
+            self._cells[i][j].draw_move(self._cells[i][j + 1], True)
+        if self._can_visit_cell(i, j - 1) and not self._cells[i][j].has_top_wall:
+            self._cells[i][j].draw_move(self._cells[i][j - 1])
+            if self._solve_r(i, j - 1):
+                return True
+            self._cells[i][j].draw_move(self._cells[i][j - 1], True)
+        return False
+
     # Safe indexing, there is also a better way to do this, i am just lazy and do not care about this guided project
     # I will try harder on the next one, i just have a thing against cell-based projects...
     def _can_visit_cell(self, i: int, j: int) -> bool:
@@ -205,7 +237,8 @@ class Maze:
 
 def main() -> None:
     win = Window(800, 800)
-    Maze(8, 8, 20, 20, 39, 39, win, 0)
+    maze = Maze(8, 8, 20, 20, 39, 39, win, 0)
+    maze.solve()
     win.wait_for_close()
 
 
